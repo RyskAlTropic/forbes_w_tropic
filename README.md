@@ -1,10 +1,6 @@
-# Web Slot Machine
+# Web Slot Machine with TROPIC01 Integration
 
-A simple web-based slot machine game built with HTML, CSS, and JavaScript.
-
-## Live Demo
-
-Play the game live: [https://luca611.github.io/web-slot-machine/](https://luca611.github.io/web-slot-machine/)
+A web-based slot machine game with optional **hardware-backed true random number generation** and **provably fair gaming** powered by the [TROPIC01](https://tropicsquare.com) secure element.
 
 ## Preview
 
@@ -13,27 +9,101 @@ Play the game live: [https://luca611.github.io/web-slot-machine/](https://luca61
 ## Features
 
 * Simple and easy-to-use interface
-* Randomized reel spins
-* Winning combinations and payout system
-* Basic animations
+* Randomized reel spins with winning combinations and payouts
+* **TROPIC01 integration** — hardware TRNG for true randomness
+* **Provably fair** — each spin signed with EdDSA (Ed25519) on-chip
+* **No backend required** — runs entirely in the browser via WebSerial
+* Graceful fallback to `Math.random()` without hardware
+
+## How It Works
+
+```
+Browser (Chrome/Edge)          USB              Devkit          Chip
+  index.html                     |                |               |
+  script.js ──WebSerial API──►   | ──USB CDC──►   | ──SPI──►  TROPIC01
+  libtropic.wasm                 |                |            (TRNG, EdDSA)
+```
+
+The game uses [libtropic](https://github.com/tropicsquare/libtropic) compiled to WebAssembly, communicating with the TROPIC01 devkit via the browser's WebSerial API. No server needed.
+
+## Quick Start
+
+### Play without TROPIC01
+
+Open `index.html` in any browser. The game works with `Math.random()` by default.
+
+### Play with TROPIC01 (provably fair)
+
+**Requirements:** Chrome or Edge, TROPIC01 devkit connected via USB, Emscripten SDK
+
+#### Install Emscripten SDK
+
+```bash
+# Clone the Emscripten SDK
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+
+# Install and activate the latest version
+./emsdk install latest
+./emsdk activate latest
+
+# Set up environment variables (run this in every new terminal, or add to your shell profile)
+source ./emsdk_env.sh
+
+# Verify installation
+emcc --version
+```
+
+> **Tip:** To avoid running `source ./emsdk_env.sh` every time, add it to your `~/.bashrc` or `~/.zshrc`:
+> ```bash
+> echo 'source /path/to/emsdk/emsdk_env.sh' >> ~/.zshrc
+> ```
+
+#### Build and Run
+
+```bash
+# Clone with submodules
+git clone --recurse-submodules <repo-url>
+cd forbes_w_tropic
+
+# Build WASM
+cd wasm && ./build.sh && cd ..
+
+# Serve locally (WebSerial requires HTTPS or localhost)
+python3 -m http.server 8080
+```
+
+1. Open `http://localhost:8080` in Chrome/Edge
+2. Click **"Connect TROPIC01"** — select the devkit from the serial picker
+3. Status shows **"Connected"** with green indicator
+4. Spin — reels determined by TROPIC01 TRNG, signature shown in fairness panel
+5. Click **"Verify"** to check the EdDSA signature
 
 ## Code Structure
 
-The game is built using the following files:
+| File | Purpose |
+|------|---------|
+| `index.html` | Game layout and TROPIC01 UI elements |
+| `script.js` | Game logic with dual-mode spin (TRNG / Math.random) |
+| `style.css` | Styling |
+| `tropic.js` | `TropicBridge` class — WebSerial + WASM bridge |
+| `wasm/hal_webserial.c` | Custom libtropic HAL for WebSerial |
+| `wasm/build.sh` | Emscripten build script |
+| `lib/libtropic/` | libtropic library (git submodule) |
 
-* `index.html`: The main HTML file that structures the game layout
-* `styles.css`: The CSS file that styles the game
-* `script.js`: The JavaScript file that handles game logic and interactions
+## TROPIC01 Provably Fair Gaming
 
-## How to Play
+Each spin with TROPIC01 connected produces:
 
-1. Open the live demo link or clone the repository and open `index.html` in your browser.
-2. Click the "Spin" button to spin the reels.
-3. Try to get winning combinations to earn virtual coins!
+- **3 random bytes** from the hardware TRNG (mapped to reel indices)
+- **EdDSA signature** (Ed25519) of the spin result, signed on-chip
+- **Public key** for independent verification
+
+The private signing key never leaves the TROPIC01 chip, making it impossible to forge results.
 
 ## Contributing
 
-Feel free to contribute to this project by submitting pull requests or reporting issues.
+Feel free to contribute by submitting pull requests or reporting issues.
 
 ## License
 

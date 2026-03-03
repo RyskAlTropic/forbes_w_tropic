@@ -4,7 +4,6 @@
 <head>
     <link rel="icon" type="image/png" href="favicon.png">
     <title>Slot Machine</title>
-    <script type="text/javascript" src="script.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <meta content="width=device-width, initial-scale=1" name="viewport" />
 </head>
@@ -26,11 +25,26 @@
     </div>
 
     <div class="" id="overlay"></div>
-    
+
     <!-- Game -->
     <h1>Slot Machine</h1>
     <p class="gaegu">Spin the wheel and hope for the best! 🦝</p>
+
+    <!-- TROPIC01 Connection -->
+    <div class="tropic-bar">
+        <button id="tropic-connect-btn" class="tropic-connect-btn" onclick="toggleTropic()">
+            Connect TROPIC01
+        </button>
+        <span id="tropic-status" class="tropic-status">
+            <span class="tropic-dot tropic-dot-disconnected"></span>
+            <span id="tropic-status-text">Not connected</span>
+        </span>
+    </div>
+
     <p>credit: <b id="credit" class="creditsValue">loading</b> 🎟️</p>
+
+    <!-- RNG Source Indicator -->
+    <p id="rng-source" class="rng-source gaegu">RNG: Math.random() (unverified)</p>
 
     <!-- Slot Machine -->
     <div id="GameBody" class="game-board">
@@ -47,11 +61,48 @@
         <button id="spin-button" class="spin" onclick="spinSlotMachines()"> SPIN </button>
     </div>
 
+    <!-- Fairness Proof Panel -->
+    <div id="fairness-proof" class="fairness-proof" style="display: none;">
+        <div class="fairness-header" onclick="toggleFairnessPanel()">
+            <span>Fairness Proof</span>
+            <span id="fairness-toggle" class="fairness-toggle">▼</span>
+        </div>
+        <div id="fairness-body" class="fairness-body">
+            <div class="fairness-row">
+                <span class="fairness-label">Spin ID:</span>
+                <span id="fairness-spin-id" class="fairness-value">—</span>
+            </div>
+            <div class="fairness-row">
+                <span class="fairness-label">Raw bytes:</span>
+                <span id="fairness-raw-bytes" class="fairness-value">—</span>
+            </div>
+            <div class="fairness-row">
+                <span class="fairness-label">Signature:</span>
+                <span id="fairness-signature" class="fairness-value fairness-mono">—</span>
+            </div>
+            <div class="fairness-row">
+                <span class="fairness-label">Public key:</span>
+                <span id="fairness-pubkey" class="fairness-value fairness-mono">—</span>
+            </div>
+            <div class="fairness-row">
+                <button id="fairness-verify-btn" class="fairness-verify-btn" onclick="verifyLastSpin()" disabled>
+                    Verify Signature
+                </button>
+                <span id="fairness-verify-result" class="fairness-verify-result"></span>
+            </div>
+        </div>
+    </div>
+
     <!-- Message for the user -->
     <br>
     <br>
     <p class="gaegu note"><i>Note that this game was made just for fun with virtual credit <br>and <b>does not promote</b>
             gambling in any way.</i></p>
+
+    <!-- Scripts: libtropic WASM (optional), TropicBridge, game logic -->
+    <script src="libtropic.js" onerror="console.log('[TROPIC01] WASM module not built yet — running in fallback mode')"></script>
+    <script src="tropic.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>
