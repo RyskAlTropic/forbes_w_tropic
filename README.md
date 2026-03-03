@@ -63,7 +63,7 @@ emcc --version
 
 ```bash
 # Clone with submodules
-git clone --recurse-submodules <repo-url>
+git clone --recurse-submodules https://github.com/RyskAlTropic/forbes_w_tropic.git
 cd forbes_w_tropic
 
 # Build WASM
