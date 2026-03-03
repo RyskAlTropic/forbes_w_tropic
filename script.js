@@ -114,7 +114,7 @@ function updateTropicUI() {
 
 // Function to spin the slot machines
 function spinSlotMachines() {
-    if (!spinning) {
+    if (!spinning && slotMachines.length > 0) {
         spinCounter++;
         localStorage.setItem('spinCounter', spinCounter);
 
@@ -152,11 +152,12 @@ function spinSlotMachines() {
 
                     localStorage.setItem('credit', credit);
 
-                    credit += checkWin();
-                    if (checkWin() > 4) {
+                    const winAmount = checkWin();
+                    credit += winAmount;
+                    if (winAmount > 4) {
                         winCount++;
                         localStorage.setItem('winCount', winCount);
-                        displayWinningMessage(checkWin());
+                        displayWinningMessage(winAmount);
                     }
                     document.getElementById('credit').textContent = credit;
                     localStorage.setItem('credit', credit);
@@ -179,8 +180,6 @@ function spinSlotMachines() {
             }, 100);
         });
     }
-
-    spinButton.textContent = 'Spinning';
 }
 
 /**
@@ -300,14 +299,14 @@ function checkWin() {
         return 30;
     }
 
-    if (firstSlotText === '🦝' && secondSlotText === '🦝' ||
-        firstSlotText === '🦝' && thirdSlotText === '🦝' ||
-        secondSlotText === '🦝' && thirdSlotText === '🦝') {
-        return 10;
-    }
-
     if (firstSlotText === '🦝' && secondSlotText === '🦝' && thirdSlotText === '🦝') {
         return 100;
+    }
+
+    if ((firstSlotText === '🦝' && secondSlotText === '🦝') ||
+        (firstSlotText === '🦝' && thirdSlotText === '🦝') ||
+        (secondSlotText === '🦝' && thirdSlotText === '🦝')) {
+        return 10;
     }
     return 0;
 }
